@@ -1,3 +1,7 @@
+require 'spec_helper'
+require 'date'
+require './lib/key_generator'
+require './lib/shift'
 require './lib/enigma'
 
 RSpec.describe Enigma do
@@ -26,11 +30,11 @@ RSpec.describe Enigma do
     expect(enigma.encrypt("Hello World!", "02715", "040895")).to eq(expected)
   end
 
-  xit 'can decrypt a message' do
+  it 'can decrypt a message' do
     enigma = Enigma.new
 
     expected = {
-      decryption: "Hello World!",
+      decryption: "hello world!",
       key: "02715",
       date: "040895"
       }
@@ -72,9 +76,33 @@ RSpec.describe Enigma do
     enigma = Enigma.new
     message = "hello! world*"
     shift = Shift.new(@key, @date)
-    expected_1 = {"A" => 3, "B" => 27, "C" => 73, "D" => 20}
-    allow(shift).to receive(:shift).and_return(expected_1)
+    expected = {"A" => 3, "B" => 27, "C" => 73, "D" => 20}
+    allow(shift).to receive(:shift).and_return(expected)
 
     expect(enigma.final_encrypted_message(message, shift)).to eq("keder! ohulw*")
+  end
+
+  it 'returns decrypted message as strings in array' do
+    enigma = Enigma.new
+    message = "keder! ohulw!"
+    shift = Shift.new(@key, @date)
+
+    expected = {"A" => 3, "B" => 27, "C" => 73, "D" => 20}
+
+    allow(shift).to receive(:shift).and_return(expected)
+
+
+    expect(enigma.decrypted_message(message, shift)).to eq(["h", "e", "l", "l", "o", " ", "w", "o", "r", "l", "d"])
+  end
+
+  it 'returns final decrypted message' do
+    enigma = Enigma.new
+    message = "keder! ohulw!"
+    shift = Shift.new(@key, @date)
+
+    expected = {"A" => 3, "B" => 27, "C" => 73, "D" => 20}
+    allow(shift).to receive(:shift).and_return(expected)
+
+    expect(enigma.final_decrypted_message(message, shift)).to eq("hello! world!")
   end
 end
